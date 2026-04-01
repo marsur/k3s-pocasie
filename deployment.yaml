@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-selfhealing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weather-cron
+  template:
+    metadata:
+      labels:
+        app: weather-cron
+    spec:
+      containers:
+      - name: weather-container
+        image: marsur64/weather_kosice_3_days:march2026
+        # Sonda, ktorá kontroluje existenciu súboru
+        livenessProbe:
+          exec:
+            command:
+            - ls
+            - /root/1.sh  # Ak tento súbor zmažeš, K8s pod reštartuje
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
